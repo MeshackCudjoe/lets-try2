@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Terminal Report</title>
+    <link rel="stylesheet" href="report.css" />
+  </head>
+  <body>
+    <div class="report-container" id="report-card-content">
+      <div class="watermark-logo"></div>
+
+      <div class="report-header">
+        <div class="school-info">
+          <img
+            src="WhatsApp Image 2025-08-30 at 4.07.00 AM.jpeg"
+            alt="School Logo"
+            class="school-logo"
+          />
+          <div class="school-details">
+            <h1>YOUR SCHOOL NAME</h1>
+            <p>LOCATION: YOUR LOCATION, ACCRA</p>
+            <p>P.O. ACCRA.</p>
+            <p>CONTACT: 05414875536</p>
+          </div>
+        </div>
+        <div class="student-photo-container">
+          <img id="student-photo" src="" alt="Student Photo" />
+        </div>
+      </div>
+
+      <h2 class="report-title">PUPIL'S TERMINAL REPORT</h2>
+
+      <div class="student-info-grid">
+        <div class="info-item">
+          <b>Name:</b> <span id="student-name"></span>
+        </div>
+        <div class="info-item">
+          <b>Next Term Begins:</b> <span id="reopening-date"></span>
+        </div>
+        <div class="info-item">
+          <b>Number On Roll:</b> <span id="number-on-roll"></span>
+        </div>
+        <div class="info-item">
+          <b>Vacation Date:</b> <span id="vacation-date"></span>
+        </div>
+        <div class="info-item"><b>Term:</b> <span id="term"></span></div>
+        <div class="info-item">
+          <b>Position:</b> <span id="position"></span>
+        </div>
+        <div class="info-item">
+          <b>Class:</b> <span id="student-class"></span>
+        </div>
+      </div>
+
+      <table class="scores-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Class Score 50%</th>
+            <th>Exams Score 50%</th>
+            <th>Total Score 100%</th>
+            <th>Grade</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="scores-table-body"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="total-row">
+              Total Score: <span id="total-score"></span>
+            </td>
+            <td colspan="3" class="total-row">
+              Average Score: <span id="average-score"></span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="additional-info-grid">
+        <p><b>Overall Attendance:</b> <span id="overall-attendance"></span></p>
+        <p><b>Attendance Made:</b> <span id="attendance-made"></span></p>
+        <p><b>Promoted To:</b> <span id="promoted-to"></span></p>
+        <p><b>Conduct:</b> <span id="conduct"></span></p>
+        <p><b>Attitude:</b> <span id="attitude"></span></p>
+        <p><b>Remarks:</b> <span id="remarks"></span></p>
+      </div>
+
+      <div class="grading-system-section">
+        <p><b>GRADING SYSTEM</b></p>
+        <table class="grading-system-table">
+          <thead>
+            <tr>
+              <th>Range</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+              <th>Range</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+              <th>Range</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>80-100</td>
+              <td>A1</td>
+              <td>Excellent</td>
+              <td>64-69</td>
+              <td>C4</td>
+              <td>Credit</td>
+              <td>50-54</td>
+              <td>D7</td>
+              <td>Pass</td>
+            </tr>
+            <tr>
+              <td>75-79</td>
+              <td>B2</td>
+              <td>Very Good</td>
+              <td>60-63</td>
+              <td>C5</td>
+              <td>Credit</td>
+              <td>45-49</td>
+              <td>E8</td>
+              <td>Pass</td>
+            </tr>
+            <tr>
+              <td>70-74</td>
+              <td>B3</td>
+              <td>Good</td>
+              <td>55-59</td>
+              <td>C6</td>
+              <td>Credit</td>
+              <td>0-44</td>
+              <td>F9</td>
+              <td>Fail</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="signatures">
+        <div class="signature-box">
+          <img id="teacher-signature" src="" alt="Teacher Signature" />
+          <p>CLASS TEACHER'S SIGNATURE</p>
+        </div>
+        <div class="signature-box">
+          <img id="admin-signature" src="" alt="Head Teacher's Signature" />
+          <p>HEAD TEACHER'S SIGNATURE</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-container">
+      <button id="generate-pdf-btn">Generate PDF</button>
+      <div
+        id="pdf-loading-spinner"
+        class="spinner-container"
+        style="display: none"
+      >
+        <div class="spinner"></div>
+        Generating...
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script type="module" src="report.js"></script>
+  </body>
+</html>

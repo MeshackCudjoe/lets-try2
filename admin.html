@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <header>
+        <div class="header-content">
+          <h1>Welcome, <span id="admin-name">Admin</span></h1>
+          <p>Manage teachers</p>
+        </div>
+        <button id="logout-btn">Logout</button>
+      </header>
+
+      <main class="dashboard-grid">
+        <div class="card">
+          <h2>Add New Teacher</h2>
+          <form id="add-teacher-form">
+            <div class="input-group">
+              <label for="teacher-name">Name</label>
+              <input type="text" id="teacher-name" required />
+            </div>
+            <div class="input-group">
+              <label for="teacher-email">Email</label>
+              <input type="email" id="teacher-email" required />
+            </div>
+            <div class="input-group">
+              <label for="teacher-password">Password</label>
+              <input type="password" id="teacher-password" required />
+            </div>
+            <div class="input-group">
+              <label for="teacher-department">Department</label>
+              <select id="teacher-department" required>
+                <option value="">Select Department</option>
+                <option value="PreSchool">PreSchool</option>
+                <option value="Primary">Primary Department</option>
+                <option value="JHS">J.H.S Department</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="teacher-class">Assigned Class</label>
+              <select id="teacher-class" required>
+                <option value="">Select Class</option>
+              </select>
+            </div>
+            <button type="submit">Add Teacher</button>
+          </form>
+          <div id="status-message-container">
+            <div
+              id="loading-message"
+              class="spinner-container"
+              style="display: none"
+            >
+              <div class="spinner"></div>
+              Saving...
+            </div>
+            <div id="status-message"></div>
+          </div>
+
+          <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #eee" />
+
+          <h2>Admin Signature</h2>
+          <form id="signature-upload-form">
+            <div class="input-group">
+              <label for="admin-signature">Upload Admin Signature</label>
+              <input
+                type="file"
+                id="admin-signature"
+                accept="image/*"
+                required
+              />
+            </div>
+            <button type="submit">Upload Signature</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Manage Teachers</h2>
+          <table id="teachers-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Class</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>
