@@ -53,7 +53,6 @@ async function generateReportCard() {
 
   const studentDocRef = doc(db, "students", studentId);
   const teacherDocRef = doc(db, "users", teacherId);
-  // FIX: Query for the admin user to get their ID and data
   const adminsQuery = query(
     collection(db, "users"),
     where("role", "==", "admin")
@@ -67,7 +66,6 @@ async function generateReportCard() {
 
   const studentData = studentSnap.data();
   const teacherData = teacherSnap.data();
-  // FIX: Get the admin data from the query result
   const adminData =
     adminsSnap.docs.length > 0 ? adminsSnap.docs[0].data() : null;
 
@@ -88,40 +86,6 @@ async function generateReportCard() {
   let totalScore = 0;
   let subjectsCount = 0;
 
-  const studentsInClassQuery = query(
-    collection(db, "students"),
-    where("class", "==", studentData.class)
-  );
-  const studentsInClassSnap = await getDocs(studentsInClassQuery);
-
-  const allStudentTotals = studentsInClassSnap.docs.map((sDoc) => {
-    const sData = sDoc.data();
-    const sTermScores = (sData.scores && sData.scores[term]) || {};
-    let sTotal = 0;
-    for (const subject in sTermScores) {
-      if (
-        [
-          "attendanceMade",
-          "promotedTo",
-          "conduct",
-          "attitude",
-          "remarks",
-        ].includes(subject)
-      ) {
-        continue;
-      }
-      const s = sTermScores[subject];
-      if (s.CA !== undefined && s.Exam !== undefined) {
-        sTotal += s.CA + (s.Exam / 100) * 50;
-      }
-    }
-    return { id: sDoc.id, total: sTotal };
-  });
-
-  allStudentTotals.sort((a, b) => b.total - a.total);
-  const studentPosition =
-    allStudentTotals.findIndex((s) => s.id === studentId) + 1;
-
   document.getElementById("student-name").textContent = studentData.name;
   document.getElementById("term").textContent = term;
   document.getElementById("student-class").textContent = studentData.class;
@@ -132,9 +96,9 @@ async function generateReportCard() {
     universalRecordsData.vacationDate
   );
   document.getElementById("number-on-roll").textContent =
-    universalRecordsData.numberOnRoll;
+    currentTermScores.numberOnRoll || "N/A";
   document.getElementById("overall-attendance").textContent =
-    universalRecordsData.totalAttendance;
+    currentTermScores.totalAttendance || "N/A";
   document.getElementById("attendance-made").textContent =
     currentTermScores.attendanceMade || "N/A";
   document.getElementById("promoted-to").textContent =
@@ -145,9 +109,13 @@ async function generateReportCard() {
     currentTermScores.attitude || "N/A";
   document.getElementById("remarks").textContent =
     currentTermScores.remarks || "N/A";
-  document.getElementById(
-    "position"
-  ).textContent = `${studentPosition}${getPositionSuffix(studentPosition)}`;
+
+  // Use the pre-calculated position from the database
+  const studentPosition = currentTermScores.classPosition || "N/A";
+  document.getElementById("position").textContent =
+    typeof studentPosition === "number"
+      ? `${studentPosition}${getPositionSuffix(studentPosition)}`
+      : "N/A";
 
   if (studentData.photoBase64) {
     document.getElementById("student-photo").src = studentData.photoBase64;
@@ -156,7 +124,6 @@ async function generateReportCard() {
     document.getElementById("teacher-signature").src =
       teacherData.signatureBase64;
   }
-  // FIX: Access the signature from the adminData object
   if (adminData && adminData.signatureBase64) {
     document.getElementById("admin-signature").src = adminData.signatureBase64;
   }
@@ -165,36 +132,28 @@ async function generateReportCard() {
   scoresTableBody.innerHTML = "";
 
   for (const subject in currentTermScores) {
-    if (
-      [
-        "attendanceMade",
-        "promotedTo",
-        "conduct",
-        "attitude",
-        "remarks",
-      ].includes(subject)
-    ) {
-      continue;
-    }
     const scores = currentTermScores[subject];
-    const continuousAssessment = scores.CA;
-    const examScore50 = Math.round((scores.Exam / 100) * 50);
-    const finalScore = continuousAssessment + examScore50;
-    totalScore += finalScore;
-    subjectsCount++;
+    // Check if the property is a subject and has a Total score
+    if (scores && scores.Total !== undefined) {
+      const continuousAssessment = scores.CA || "N/A";
+      const examScore = scores.Exam || "N/A";
+      const finalScore = scores.Total || "N/A";
+      totalScore += finalScore;
+      subjectsCount++;
 
-    const { grade, remarks } = getGradeAndRemarks(finalScore);
+      const { grade, remarks } = getGradeAndRemarks(finalScore);
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${subject}</td>
-      <td>${continuousAssessment}</td>
-      <td>${examScore50}</td>
-      <td>${Math.round(finalScore)}</td>
-      <td>${grade}</td>
-      <td>${remarks}</td>
-    `;
-    scoresTableBody.appendChild(row);
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${subject}</td>
+        <td>${continuousAssessment}</td>
+        <td>${examScore}</td>
+        <td>${Math.round(finalScore)}</td>
+        <td>${grade}</td>
+        <td>${remarks}</td>
+      `;
+      scoresTableBody.appendChild(row);
+    }
   }
 
   document.getElementById("total-score").textContent = Math.round(totalScore);

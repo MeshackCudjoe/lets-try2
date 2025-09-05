@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Records</title>
+    <link rel="stylesheet" href="student-records.css" />
+  </head>
+  <body>
+    <div class="records-container">
+      <header>
+        <h1>Student Records for <span id="teacher-name"></span></h1>
+        <button id="back-to-dashboard-btn">Back to Dashboard</button>
+      </header>
+
+      <main>
+        <div class="controls-container">
+          <div class="input-group">
+            <label for="term-select">Select Term</label>
+            <select id="term-select">
+              <option value="">Select Term</option>
+              <option value="Term 1">Term 1</option>
+              <option value="Term 2">Term 2</option>
+              <option value="Term 3">Term 3</option>
+            </select>
+          </div>
+          <button id="fetch-records-btn">Fetch Records</button>
+        </div>
+
+        <div class="records-table-container" style="display: none">
+          <table id="records-table">
+            <thead>
+              <tr>
+                <th data-sort="name">Student Name</th>
+                <th data-sort="totalScore">Total Score</th>
+                <th data-sort="classPosition">Position</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="student-records.js"></script>
+  </body>
+</html>

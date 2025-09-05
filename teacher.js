@@ -28,6 +28,7 @@ const subjectScoresContainer = document.getElementById(
 const studentNameHeader = document.getElementById("student-name-header");
 const generateReportBtn = document.getElementById("generate-report-btn");
 const uploadSignatureForm = document.getElementById("signature-upload-form");
+const studentRecordsBtn = document.getElementById("student-records-btn");
 
 let currentTeacherData;
 let currentStudentId;
@@ -76,6 +77,7 @@ addStudentForm.addEventListener("submit", async (e) => {
       teacherId: auth.currentUser.uid,
       class: currentTeacherData.assignedClass,
       photoBase64: photoBase64 || null,
+      scores: {},
     });
 
     addStudentForm.reset();
@@ -93,7 +95,6 @@ universalRecordsForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   toggleButtonLoading(universalRecordsForm, true);
 
-  // FIX: Read value from select element
   const term = universalRecordsForm["term"].value;
   const totalAttendance = universalRecordsForm["total-attendance"].value;
   const vacationDate = universalRecordsForm["vacation-date"].value;
@@ -192,7 +193,7 @@ async function fetchStudents() {
         try {
           await deleteDoc(doc(db, "students", studentIdToDelete));
           alert("Student deleted successfully!");
-          fetchStudents(); // Refresh the student list
+          fetchStudents();
         } catch (error) {
           console.error("Error deleting student:", error);
           alert("Error deleting student. Please try again.");
@@ -209,7 +210,6 @@ async function populateScoreForm() {
   const studentData = studentDoc.data();
   const studentScores = studentData.scores || {};
 
-  // FIX: Read term from the select element
   const term = universalRecordsForm.term.value;
 
   if (!term) {
@@ -250,7 +250,6 @@ async function populateScoreForm() {
     (studentScores[term] || {}).attendanceMade || "";
   scoreEntryForm["promoted-to"].value =
     (studentScores[term] || {}).promotedTo || "";
-  // FIX: Set value of select element
   scoreEntryForm["remarks"].value = (studentScores[term] || {}).remarks || "";
   scoreEntryForm["conduct"].value = (studentScores[term] || {}).conduct || "";
   scoreEntryForm["attitude"].value = (studentScores[term] || {}).attitude || "";
@@ -260,7 +259,6 @@ scoreEntryForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   toggleButtonLoading(scoreEntryForm, true);
 
-  // FIX: Read term from the select element
   const term = universalRecordsForm.term.value;
   if (!term) {
     alert("Please select a term in the Universal Records form first.");
@@ -281,30 +279,81 @@ scoreEntryForm.addEventListener("submit", async (e) => {
 
     for (const subject in scores) {
       const s = scores[subject];
-      let caTotal =
-        (s.Quiz / 20) * 50 +
-        (s.Test1 / 10) * 50 +
-        (s.Test2 / 10) * 50 +
-        (s.Test3 / 10) * 50 +
-        (s.Project / 30) * 50;
-      if (caTotal > 50) {
-        caTotal = 50;
-      }
+      const caTotal =
+        (s.Quiz / 20) * 10 +
+        (s.Test1 / 10) * 10 +
+        (s.Test2 / 10) * 10 +
+        (s.Test3 / 10) * 10 +
+        (s.Project / 30) * 10;
+
+      const examScore = (s.Exam / 100) * 60;
+      const totalScore = caTotal + examScore;
+
       scores[subject].CA = Math.round(caTotal);
+      scores[subject].Exam = Math.round(examScore);
+      scores[subject].Total = Math.round(totalScore);
     }
 
     const studentDocRef = doc(db, "students", currentStudentId);
-    await updateDoc(studentDocRef, {
-      [`scores.${term}`]: {
-        ...scores,
-        attendanceMade: scoreEntryForm["attendance-made"].value,
-        promotedTo: scoreEntryForm["promoted-to"].value,
-        // FIX: Read value from select element
-        remarks: scoreEntryForm["remarks"].value,
-        conduct: scoreEntryForm["conduct"].value,
-        attitude: scoreEntryForm["attitude"].value,
-      },
+    const allStudentsQuery = query(
+      collection(db, "students"),
+      where("teacherId", "==", auth.currentUser.uid)
+    );
+    const allStudentsSnapshot = await getDocs(allStudentsQuery);
+    const studentDataList = [];
+    allStudentsSnapshot.forEach((d) => {
+      studentDataList.push({ id: d.id, ...d.data() });
     });
+
+    const allStudentTermScores = {};
+    for (const s of studentDataList) {
+      const termScores = s.scores?.[term] || {};
+      let total = 0;
+      for (const subject in termScores) {
+        if (termScores[subject].Total) {
+          total += termScores[subject].Total;
+        }
+      }
+      allStudentTermScores[s.id] = { total, name: s.name, scores: termScores };
+    }
+
+    const currentStudentTotal = Object.values(scores).reduce(
+      (sum, s) => sum + (s.Total || 0),
+      0
+    );
+    allStudentTermScores[currentStudentId].total = currentStudentTotal;
+
+    const sortedStudents = Object.values(allStudentTermScores).sort(
+      (a, b) => b.total - a.total
+    );
+
+    const updatedStudentData = {};
+    sortedStudents.forEach((s, index) => {
+      const rank = index + 1;
+      const student = studentDataList.find((d) => d.name === s.name);
+      updatedStudentData[student.id] = {
+        [`scores.${term}.classPosition`]: rank,
+        [`scores.${term}.totalScore`]: s.total,
+        ...student.scores,
+      };
+
+      if (student.id === currentStudentId) {
+        updatedStudentData[student.id][`scores.${term}`] = {
+          ...scores,
+          attendanceMade: scoreEntryForm["attendance-made"].value,
+          promotedTo: scoreEntryForm["promoted-to"].value,
+          remarks: scoreEntryForm["remarks"].value,
+          conduct: scoreEntryForm["conduct"].value,
+          attitude: scoreEntryForm["attitude"].value,
+          totalScore: currentStudentTotal,
+          classPosition: rank,
+        };
+      }
+    });
+
+    for (const id in updatedStudentData) {
+      await updateDoc(doc(db, "students", id), updatedStudentData[id]);
+    }
 
     alert("Scores and info saved successfully!");
   } catch (error) {
@@ -316,7 +365,6 @@ scoreEntryForm.addEventListener("submit", async (e) => {
 });
 
 generateReportBtn.addEventListener("click", () => {
-  // FIX: Read term from the select element
   const term = universalRecordsForm.term.value;
   if (!term) {
     alert("Please select a term in the Universal Records form first.");
@@ -331,6 +379,10 @@ generateReportBtn.addEventListener("click", () => {
     })
   );
   window.location.href = "report.html";
+});
+
+studentRecordsBtn.addEventListener("click", () => {
+  window.location.href = "student-records.html";
 });
 
 scoreEntryForm.addEventListener("keydown", (e) => {
