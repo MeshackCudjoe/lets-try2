@@ -49,7 +49,8 @@ auth.onAuthStateChanged(async (user) => {
   } else {
     currentTeacherData = docSnap.data();
     teacherNameElement.textContent = currentTeacherData.name;
-    fetchStudents(); // The `populatePromotedToDropdown()` function has been removed.
+    fetchStudents();
+    // populatePromotedToDropdown(); // CORRECTED: Call the new function
   }
 });
 
@@ -59,6 +60,19 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     window.location.href = "index.html";
   });
 });
+
+// async function populatePromotedToDropdown() {
+//   promotedToSelect.innerHTML = '<option value="">Select a class</option>';
+//   const classesQuery = query(collection(db, "classes"));
+//   const classesSnapshot = await getDocs(classesQuery);
+//   classesSnapshot.forEach((doc) => {
+//     const className = doc.id.replace(/-/g, " ").toUpperCase();
+//     const option = document.createElement("option");
+//     option.value = className;
+//     option.textContent = className;
+//     promotedToSelect.appendChild(option);
+//   });
+// }
 
 addStudentForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -165,13 +179,13 @@ async function fetchStudents() {
     const student = doc.data();
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${student.name}</td>
-      <td>${student.class}</td>
-      <td>
-        <button class="score-btn" data-id="${doc.id}">Enter Scores</button>
-        <button class="delete-btn" data-id="${doc.id}">Delete</button>
-      </td>
-    `;
+      <td>${student.name}</td>
+      <td>${student.class}</td>
+      <td>
+        <button class="score-btn" data-id="${doc.id}">Enter Scores</button>
+        <button class="delete-btn" data-id="${doc.id}">Delete</button>
+      </td>
+    `;
     studentsTableBody.appendChild(row);
   });
 
@@ -224,31 +238,34 @@ async function populateScoreForm() {
     const scores = (studentScores[term] || {})[subject] || {};
 
     subjectGroup.innerHTML = `
-      <label>${subject}</label>
-      <input type="number" class="score-field" name="Quiz-${subject}" placeholder="Quiz (out of 20)" min="0" max="20" value="${
+      <label>${subject}</label>
+      <input type="number" class="score-field" name="Quiz-${subject}" placeholder="Quiz (out of 20)" min="0" max="20" value="${
       scores.Quiz || ""
     }" required>
-      <input type="number" class="score-field" name="Test1-${subject}" placeholder="Test 1 (out of 10)" min="0" max="10" value="${
+      <input type="number" class="score-field" name="Test1-${subject}" placeholder="Test 1 (out of 10)" min="0" max="10" value="${
       scores.Test1 || ""
     }" required>
-      <input type="number" class="score-field" name="Test2-${subject}" placeholder="Test 2 (out of 10)" min="0" max="10" value="${
+      <input type="number" class="score-field" name="Test2-${subject}" placeholder="Test 2 (out of 10)" min="0" max="10" value="${
       scores.Test2 || ""
     }" required>
-      <input type="number" class="score-field" name="Test3-${subject}" placeholder="Test 3 (out of 10)" min="0" max="10" value="${
+      <input type="number" class="score-field" name="Test3-${subject}" placeholder="Test 3 (out of 10)" min="0" max="10" value="${
       scores.Test3 || ""
     }" required>
-      <input type="number" class="score-field" name="Project-${subject}" placeholder="Project (out of 30)" min="0" max="30" value="${
+      <input type="number" class="score-field" name="Project-${subject}" placeholder="Project (out of 30)" min="0" max="30" value="${
       scores.Project || ""
     }" required>
-      <input type="number" class="score-field" name="Exam-${subject}" placeholder="Exam (out of 100)" min="0" max="100" value="${
+      <input type="number" class="score-field" name="Exam-${subject}" placeholder="Exam (out of 100)" min="0" max="100" value="${
       scores.Exam || ""
     }" required>
-    `;
+    `;
     subjectScoresContainer.appendChild(subjectGroup);
   }
 
   scoreEntryForm["attendance-made"].value =
-    (studentScores[term] || {}).attendanceMade || ""; // This line is not needed as the HTML has hard-coded options // scoreEntryForm["promoted-to"].value = //   (studentScores[term] || {}).promotedTo || "";
+    (studentScores[term] || {}).attendanceMade || "";
+  // CORRECTED: Set the value for the new select element
+  scoreEntryForm["promoted-to"].value =
+    (studentScores[term] || {}).promotedTo || "";
   scoreEntryForm["remarks"].value = (studentScores[term] || {}).remarks || "";
   scoreEntryForm["conduct"].value = (studentScores[term] || {}).conduct || "";
   scoreEntryForm["attitude"].value = (studentScores[term] || {}).attitude || "";
@@ -340,6 +357,7 @@ scoreEntryForm.addEventListener("submit", async (e) => {
         updatedStudentData[student.id][`scores.${term}`] = {
           ...scores,
           attendanceMade: scoreEntryForm["attendance-made"].value,
+          // CORRECTED: Get the value from the select element
           promotedTo: promotedToSelect.value,
           remarks: scoreEntryForm["remarks"].value,
           conduct: scoreEntryForm["conduct"].value,
