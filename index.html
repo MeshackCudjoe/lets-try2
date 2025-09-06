@@ -3,25 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>School Management System - Login</title>
+    <title>GradeFlow - Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <div class="login-container">
+    <div class="login-page">
       <div class="login-card">
-        <h1>Welcome to School Manager</h1>
-        <p>Please log in to continue</p>
+        <div class="logo-container">
+          <img src="MAC Studios.png" alt="Company Logo" class="logo" />
+          <h1>GradeFlow</h1>
+        </div>
+        <p>Welcome! Please log in to continue.</p>
+
         <form id="login-form">
           <div class="input-group">
-            <label for="email">Email</label>
+            <label for="email">
+              <i class="fas fa-envelope icon"></i>
+              Email
+            </label>
             <input type="email" id="email" required />
           </div>
           <div class="input-group">
-            <label for="password">Password</label>
+            <label for="password">
+              <i class="fas fa-lock icon"></i>
+              Password
+            </label>
             <input type="password" id="password" required />
           </div>
+          <div id="error-message" class="error-message"></div>
           <button type="submit" id="login-btn">Log In</button>
         </form>
+
         <div
           id="loading-spinner"
           class="spinner-container"
@@ -30,9 +46,13 @@
           <div class="spinner"></div>
           Authenticating...
         </div>
-        <div id="error-message"></div>
       </div>
     </div>
+    <footer class="footer">
+      <p>Copyright &copy; 2025 MACStudios. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="firebase-config.js"></script>
     <script type="module" src="index.js"></script>
   </body>
 </html>

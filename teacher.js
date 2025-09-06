@@ -286,7 +286,7 @@ scoreEntryForm.addEventListener("submit", async (e) => {
         (s.Test3 / 10) * 10 +
         (s.Project / 30) * 10;
 
-      const examScore = (s.Exam / 100) * 60;
+      const examScore = (s.Exam / 100) * 50;
       const totalScore = caTotal + examScore;
 
       scores[subject].CA = Math.round(caTotal);

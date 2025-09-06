@@ -95,10 +95,11 @@ async function generateReportCard() {
   document.getElementById("vacation-date").textContent = formatDate(
     universalRecordsData.vacationDate
   );
+  // CORRECTED: Accessing universal records for these fields
   document.getElementById("number-on-roll").textContent =
-    currentTermScores.numberOnRoll || "N/A";
+    universalRecordsData.numberOnRoll || "N/A";
   document.getElementById("overall-attendance").textContent =
-    currentTermScores.totalAttendance || "N/A";
+    universalRecordsData.totalAttendance || "N/A";
   document.getElementById("attendance-made").textContent =
     currentTermScores.attendanceMade || "N/A";
   document.getElementById("promoted-to").textContent =
@@ -110,7 +111,6 @@ async function generateReportCard() {
   document.getElementById("remarks").textContent =
     currentTermScores.remarks || "N/A";
 
-  // Use the pre-calculated position from the database
   const studentPosition = currentTermScores.classPosition || "N/A";
   document.getElementById("position").textContent =
     typeof studentPosition === "number"
@@ -133,10 +133,10 @@ async function generateReportCard() {
 
   for (const subject in currentTermScores) {
     const scores = currentTermScores[subject];
-    // Check if the property is a subject and has a Total score
     if (scores && scores.Total !== undefined) {
       const continuousAssessment = scores.CA || "N/A";
-      const examScore = scores.Exam || "N/A";
+      // Using the calculated 50% exam score
+      const examScore50 = scores.Exam || "N/A";
       const finalScore = scores.Total || "N/A";
       totalScore += finalScore;
       subjectsCount++;
@@ -147,7 +147,7 @@ async function generateReportCard() {
       row.innerHTML = `
         <td>${subject}</td>
         <td>${continuousAssessment}</td>
-        <td>${examScore}</td>
+        <td>${examScore50}</td>
         <td>${Math.round(finalScore)}</td>
         <td>${grade}</td>
         <td>${remarks}</td>
